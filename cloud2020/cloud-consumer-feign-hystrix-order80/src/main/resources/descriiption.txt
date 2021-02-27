@@ -1,0 +1,20 @@
+一：服务降级三种方式：
+   1，每个方法上面配置@HystrixCommand(fallbackMethod ="payment_timeoutHandel",commandProperties = {
+                        @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds",value="2000")
+                 })
+
+   2，全局服务降级方法：类上面配置默认fallback方法：@DefaultProperties(defaultFallback = "global_fallback")
+                      方法上面加@HystrixCommand
+
+   3，feign的fallback功能：@FeignClient(name = "CLOUD-PROVIDER-HYSTRIX-PAYMENT",fallback = OrderFallBackService.class)
+
+二：服务熔断
+   1，方法上面加：@HystrixCommand(fallbackMethod = "paymentCircuitBreaker_fallback",commandProperties = {
+               @HystrixProperty(name = "circuitBreaker.enabled",value = "true"),// 是否开启断路器
+               @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold",value = "10"),// 请求次数
+               @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds",value = "10000"), // 时间窗口期
+               @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage",value = "60"),// 失败率达到多少后跳闸
+       })
+    2，circuitBreaker.sleepWindowInMilliseconds：在此时间间隔
+       circuitBreaker.requestVolumeThreshold：   至少请求次数才会开启断路器
+       circuitBreaker.errorThresholdPercentage： 失败率达到多少后会开启断路器
